@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,6 +17,9 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final phoneNumberController = TextEditingController();
 
+    final codeNode = FocusNode();
+    final phoneNode = FocusNode();
+
     return MaterialApp(
         theme: ThemeData(scaffoldBackgroundColor: const Color(0xff8EAAFB)),
         home: Scaffold(
@@ -30,6 +34,9 @@ class _MyAppState extends State<MyApp> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
+                      const SizedBox(
+                        height: 20,
+                      ),
                       SizedBox(
                         child: Row(
                           children: const [
@@ -48,10 +55,40 @@ class _MyAppState extends State<MyApp> {
                         width: double.maxFinite,
                         child: Row(
                           children: [
+                            SizedBox(
+                              width: 80,
+                              child: TextField(
+                                  focusNode: codeNode,
+                                  onTap: () {},
+                                  decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                        borderRadius:
+                                            BorderRadius.circular(16.0),
+                                      ),
+                                      filled: true,
+                                      hintStyle: const TextStyle(
+                                          color: Color(0xff7886B8)),
+                                      hintText: "code",
+                                      fillColor: const Color(0xffF4F5FF)
+                                          .withOpacity(0.4))),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             Flexible(
-                                child: TextField(
+                                child: TextFormField(
+                              validator: (value) => validatePhoneNumber(value!)
+                                  ? null
+                                  : 'Insert your number',
+                              focusNode: phoneNode,
+                              maxLength: 14,
+                              inputFormatters: [
+                                PhoneNumberTextInputFormatter()
+                              ],
                               controller: phoneNumberController,
                               decoration: InputDecoration(
+                                  counterText: '',
                                   border: OutlineInputBorder(
                                     borderSide: BorderSide.none,
                                     borderRadius: BorderRadius.circular(16.0),
@@ -83,8 +120,37 @@ class _MyAppState extends State<MyApp> {
               onPressed: () {},
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16)),
-              child: const Icon(Icons.arrow_forward)),
+              backgroundColor: const Color(0xffFFFFFF),
+              child: const Icon(
+                Icons.arrow_forward,
+                color: Color(0xff594C74),
+              )),
           floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         ));
+  }
+}
+
+bool validatePhoneNumber(String input) {
+  final phoneExp = RegExp(r'^\+\d\d\d\d\d\d\d\d\d\d\d\d$');
+  return phoneExp.hasMatch(input);
+}
+
+class PhoneNumberTextInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (text.length > 3 && text.length < 7) {
+      text = '(${text.substring(0, 3)}) ${text.substring(3)}';
+    } else if (text.length >= 7) {
+      text =
+          '(${text.substring(0, 3)}) ${text.substring(3, 6)}-${text.substring(6)}';
+    }
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
   }
 }
