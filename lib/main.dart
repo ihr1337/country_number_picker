@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart' hide ModalBottomSheetRoute;
 
-import 'countries_model.dart';
+import 'models/countries_model.dart';
 import 'screens/get_started_screen.dart';
 
 void main() {

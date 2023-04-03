@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 
 bool validatePhoneNumber(String input) {
-  final phoneExp = RegExp(r'^\+\d\d\d\d\d\d\d\d\d\d\d\d$');
+  final phoneExp = RegExp(r'^\(\d\d\d\)\ \d\d\d\-\d\d\d\d\d$');
   return phoneExp.hasMatch(input);
 }
 
