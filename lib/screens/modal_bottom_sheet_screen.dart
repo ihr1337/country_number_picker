@@ -132,7 +132,7 @@ class _ModalSheetState extends State<ModalSheet> {
                                           country.flag!,
                                           country.suffixes?.isNotEmpty == true
                                               ? country.suffixes![0]
-                                              : '',
+                                              : 'no suffix',
                                         );
                                       },
                                       title: Row(children: [

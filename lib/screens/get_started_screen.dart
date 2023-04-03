@@ -6,26 +6,39 @@ import '../util/phone_number_formatter.dart';
 import 'modal_bottom_sheet_screen.dart';
 
 class GetStartedScreen extends StatefulWidget {
+  final Future<List<Country>> futureCountries;
+
   GetStartedScreen({
-    super.key,
+    Key? key,
     required this.futureCountries,
-  });
-
-  late final Future<List<Country>> futureCountries;
-
-  final phoneNode = FocusNode();
+  }) : super(key: key);
 
   @override
-  State<GetStartedScreen> createState() => _GetStartedScreenState();
+  _GetStartedScreenState createState() => _GetStartedScreenState();
 }
 
 class _GetStartedScreenState extends State<GetStartedScreen> {
-  String countryCode = '+380';
-
-  String countryFlag = 'https://flagcdn.com/w320/ua.png';
-
+  late final TextEditingController phoneNumberController;
+  late final FocusNode phoneNode;
+  late String countryCode;
+  late String countryFlag;
   bool _isTextFieldFilled = false;
-  final TextEditingController _phoneNumberController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    phoneNumberController = TextEditingController();
+    phoneNode = FocusNode();
+    countryCode = '+380';
+    countryFlag = 'https://flagcdn.com/w320/ua.png';
+  }
+
+  @override
+  void dispose() {
+    phoneNumberController.dispose();
+    phoneNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,14 +148,14 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                 ),
                                 Flexible(
                                     child: TextFormField(
-                                  controller: _phoneNumberController,
+                                  controller: phoneNumberController,
                                   onChanged: (value) {
                                     setState(() {
                                       _isTextFieldFilled = value.length == 14;
                                     });
                                   },
                                   autofocus: true,
-                                  focusNode: widget.phoneNode,
+                                  focusNode: phoneNode,
                                   maxLength: 14,
                                   inputFormatters: [
                                     PhoneNumberTextInputFormatter()
