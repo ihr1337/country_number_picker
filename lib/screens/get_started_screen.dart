@@ -33,15 +33,19 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
         theme: ThemeData(scaffoldBackgroundColor: const Color(0xff8EAAFB)),
         home: Builder(
           builder: (context) => Scaffold(
-            resizeToAvoidBottomInset: false,
             floatingActionButton: FloatingActionButton(
-                onPressed: () {},
+                onPressed: _isTextFieldFilled ? () {} : null,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16)),
-                backgroundColor: const Color(0xffFFFFFF),
-                child: const Icon(
+                backgroundColor: _isTextFieldFilled
+                    ? const Color(0xffFFFFFF)
+                    : const Color(0xffF4F5FF).withOpacity(0.4),
+                elevation: _isTextFieldFilled ? 1.0 : 0,
+                child: Icon(
+                  color: _isTextFieldFilled
+                      ? const Color(0xff594C74)
+                      : const Color(0xff7886B8),
                   Icons.arrow_forward,
-                  color: Color(0xff594C74),
                 )),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
             body: GestureDetector(
@@ -132,6 +136,11 @@ class _GetStartedScreenState extends State<GetStartedScreen> {
                                 Flexible(
                                     child: TextFormField(
                                   controller: _phoneNumberController,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _isTextFieldFilled = value.length == 14;
+                                    });
+                                  },
                                   autofocus: true,
                                   focusNode: widget.phoneNode,
                                   maxLength: 14,
