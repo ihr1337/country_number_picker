@@ -3,16 +3,24 @@ import 'package:http/http.dart' as http;
 
 class Country {
   String? name;
-  String? idd;
+  List<String>? suffixes;
   String? flag;
+  String? root;
 
-  Country({required this.name, required this.idd, required this.flag});
+  Country(
+      {required this.name,
+      required this.suffixes,
+      required this.flag,
+      required this.root});
 
   factory Country.fromJson(Map<String, dynamic> json) {
     return Country(
       name: json['name']['common'],
-      idd: json['idd'] != null ? json['idd']['root'] : 'null',
-      flag: json['flags'] != null ? json['flags']['png'] : 'null',
+      suffixes: json['idd'] != null
+          ? List<String>.from(json['idd']['suffixes'])
+          : null,
+      flag: json['flags'] != null ? json['flags']['png'] : null,
+      root: json['idd'] != null ? json['idd']['root'] : null,
     );
   }
 }

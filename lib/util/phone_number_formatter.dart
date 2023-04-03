@@ -1,10 +1,5 @@
 import 'package:flutter/services.dart';
 
-bool validatePhoneNumber(String input) {
-  final phoneExp = RegExp(r'^\(\d\d\d\)\ \d\d\d\-\d\d\d\d\d$');
-  return phoneExp.hasMatch(input);
-}
-
 class PhoneNumberTextInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(

@@ -24,13 +24,6 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final phoneNumberController = TextEditingController();
-
-    final phoneNode = FocusNode();
-
-    return GetStartedScreen(
-        futureCountries: futureCountries,
-        phoneNode: phoneNode,
-        phoneNumberController: phoneNumberController);
+    return GetStartedScreen(futureCountries: futureCountries);
   }
 }

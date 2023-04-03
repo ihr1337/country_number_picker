@@ -2,20 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../models/countries_model.dart';
-import '../util/phone_number_validator_and_formatter.dart';
+import '../util/phone_number_formatter.dart';
 import 'modal_bottom_sheet_screen.dart';
 
-class GetStartedScreen extends StatelessWidget {
-  const GetStartedScreen({
+class GetStartedScreen extends StatefulWidget {
+  GetStartedScreen({
     super.key,
     required this.futureCountries,
-    required this.phoneNode,
-    required this.phoneNumberController,
   });
 
-  final Future<List<Country>> futureCountries;
-  final FocusNode phoneNode;
-  final TextEditingController phoneNumberController;
+  late final Future<List<Country>> futureCountries;
+
+  final phoneNode = FocusNode();
+
+  @override
+  State<GetStartedScreen> createState() => _GetStartedScreenState();
+}
+
+class _GetStartedScreenState extends State<GetStartedScreen> {
+  String countryCode = '+380';
+
+  String countryFlag = 'https://flagcdn.com/w320/ua.png';
+
+  bool _isTextFieldFilled = false;
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -68,15 +78,25 @@ class GetStartedScreen extends StatelessWidget {
                                 SizedBox(
                                     height: 60,
                                     child: ElevatedButton(
-                                      onPressed: () {
-                                        showCupertinoModalBottomSheet(
+                                      onPressed: () async {
+                                        Map<String, dynamic>? result =
+                                            await showCupertinoModalBottomSheet(
                                           context: context,
-                                          builder: (context) {
-                                            return ModalSheet(
-                                                futureCountries:
-                                                    futureCountries);
-                                          },
+                                          builder: (context) => ModalSheet(
+                                            futureCountries:
+                                                widget.futureCountries,
+                                          ),
                                         );
+                                        if (result != null) {
+                                          String idd = result['idd'];
+                                          String flag = result['flag'];
+                                          setState(() {
+                                            countryCode = idd;
+                                            countryFlag = flag;
+                                          });
+                                        } else {
+                                          // do nothing
+                                        }
                                       },
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: const Color(0xffF4F5FF)
@@ -87,11 +107,23 @@ class GetStartedScreen extends StatelessWidget {
                                               BorderRadius.circular(16.0),
                                         ),
                                       ),
-                                      child: const Text(
-                                        '+380',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: Color(0xff594C74)),
+                                      child: Row(
+                                        children: [
+                                          Image.network(
+                                            countryFlag,
+                                            height: 20,
+                                            width: 20,
+                                          ),
+                                          const SizedBox(
+                                            width: 5,
+                                          ),
+                                          Text(
+                                            countryCode,
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                color: Color(0xff594C74)),
+                                          ),
+                                        ],
                                       ),
                                     )),
                                 const SizedBox(
@@ -99,13 +131,13 @@ class GetStartedScreen extends StatelessWidget {
                                 ),
                                 Flexible(
                                     child: TextFormField(
+                                  controller: _phoneNumberController,
                                   autofocus: true,
-                                  focusNode: phoneNode,
+                                  focusNode: widget.phoneNode,
                                   maxLength: 14,
                                   inputFormatters: [
                                     PhoneNumberTextInputFormatter()
                                   ],
-                                  controller: phoneNumberController,
                                   style:
                                       const TextStyle(color: Color(0xff594C74)),
                                   decoration: InputDecoration(

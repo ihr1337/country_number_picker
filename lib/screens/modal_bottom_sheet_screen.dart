@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/countries_model.dart';
+import '../util/get_filtered_countries.dart';
 
 class ModalSheet extends StatefulWidget {
   const ModalSheet({
@@ -15,29 +16,18 @@ class ModalSheet extends StatefulWidget {
 }
 
 class _ModalSheetState extends State<ModalSheet> {
-  List<Country> _countries = [];
-  String _searchText = '';
-
   @override
   void initState() {
     super.initState();
     widget.futureCountries.then((countries) {
       setState(() {
-        _countries = countries;
+        countriesNewList = countries;
       });
     });
   }
 
-  List<Country> _getFilteredCountries() {
-    if (_searchText.isEmpty) {
-      return _countries;
-    } else {
-      return _countries
-          .where((country) =>
-              country.name!.toLowerCase().contains(_searchText.toLowerCase()) ||
-              country.idd!.toLowerCase().contains(_searchText.toLowerCase()))
-          .toList();
-    }
+  void _selectItem(String idd, String flag, String? suffix) {
+    Navigator.pop(context, {'idd': idd, 'flag': flag, 'suffix': suffix});
   }
 
   @override
@@ -55,40 +45,43 @@ class _ModalSheetState extends State<ModalSheet> {
             child: Column(
               children: [
                 Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Country code',
-                          style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
-                      SizedBox(
-                        height: 20,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Country code',
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    Align(
+                      child: Container(
                         width: 20,
-                        child: Ink(
-                          decoration: const ShapeDecoration(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(6.0))),
-                              color: Colors.amber),
-                          child: IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(
-                              Icons.close,
-                              size: 15,
-                              color: Color(0xffF4F5FF),
-                            ),
-                            color: const Color(0xff594C74).withOpacity(0.4),
-                            splashRadius: 10,
-                            tooltip: 'Close',
-                            focusColor: const Color(0xffF4F5FF),
-                            alignment: Alignment.center,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          color: const Color(0xffF4F5FF).withOpacity(0.4),
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.close,
+                            size: 15,
+                            color: Color(0xff594C74),
                           ),
+                          splashRadius: 10,
+                          tooltip: 'Close',
+                          focusColor: const Color(0xffF4F5FF),
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(4),
                         ),
                       ),
-                    ]),
+                    ),
+                  ],
+                ),
                 const SizedBox(
                   height: 20,
                 ),
@@ -111,7 +104,7 @@ class _ModalSheetState extends State<ModalSheet> {
                       fillColor: const Color(0xffF4F5FF).withOpacity(0.4)),
                   onChanged: (value) {
                     setState(() {
-                      _searchText = value;
+                      searchText = value;
                     });
                   },
                 )),
@@ -122,15 +115,29 @@ class _ModalSheetState extends State<ModalSheet> {
                       builder: (context, snapshot) {
                         if (snapshot.hasData) {
                           return ListView.builder(
-                              itemCount: _getFilteredCountries().length,
+                              itemCount: getFilteredCountries().length,
                               itemBuilder: (context, index) {
+                                final country = getFilteredCountries()[index];
+                                final idd = country.suffixes?.isNotEmpty == true
+                                    ? '${country.root!}${country.suffixes![0]}'
+                                    : '';
                                 return SizedBox(
                                   height: 50,
                                   child: ListTile(
-                                      onTap: () {},
+                                      onTap: () {
+                                        _selectItem(
+                                          idd.isNotEmpty == true
+                                              ? idd
+                                              : 'no code',
+                                          country.flag!,
+                                          country.suffixes?.isNotEmpty == true
+                                              ? country.suffixes![0]
+                                              : '',
+                                        );
+                                      },
                                       title: Row(children: [
                                         Text(
-                                          _getFilteredCountries()[index].idd!,
+                                          idd,
                                           style: const TextStyle(
                                               color: Color(0xff594C74)),
                                         ),
@@ -139,8 +146,7 @@ class _ModalSheetState extends State<ModalSheet> {
                                         ),
                                         Flexible(
                                           child: Text(
-                                            _getFilteredCountries()[index]
-                                                .name!,
+                                            country.name!,
                                             style: const TextStyle(
                                                 color: Colors.white),
                                           ),
@@ -149,9 +155,7 @@ class _ModalSheetState extends State<ModalSheet> {
                                       leading: SizedBox(
                                         height: 20,
                                         width: 20,
-                                        child: Image.network(
-                                            _getFilteredCountries()[index]
-                                                .flag!),
+                                        child: Image.network(country.flag!),
                                       )),
                                 );
                               });
